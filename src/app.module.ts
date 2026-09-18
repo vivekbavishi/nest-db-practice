@@ -11,11 +11,19 @@ import { UsersModule } from './users/users.module.js';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DATABASE_HOST ?? 'localhost',
-      port: Number(process.env.DATABASE_PORT ?? 5432),
-      username: process.env.DATABASE_USER ?? 'postgres',
-      password: process.env.DATABASE_PASSWORD ?? 'postgres',
-      database: process.env.DATABASE_NAME ?? 'nest_db',
+      ...(process.env.DATABASE_URL
+        ? { url: process.env.DATABASE_URL }
+        : {
+            host: process.env.DATABASE_HOST ?? 'localhost',
+            port: Number(process.env.DATABASE_PORT ?? 5432),
+            username: process.env.DATABASE_USER ?? 'postgres',
+            password: process.env.DATABASE_PASSWORD ?? 'postgres',
+            database: process.env.DATABASE_NAME ?? 'nest_db',
+          }),
+      ssl:
+        process.env.DATABASE_SSL === 'true'
+          ? { rejectUnauthorized: false }
+          : false,
       entities: [User, Post],
       synchronize: process.env.NODE_ENV !== 'production',
     }),
